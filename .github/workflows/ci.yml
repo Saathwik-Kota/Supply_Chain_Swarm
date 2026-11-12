@@ -1,0 +1,65 @@
+name: CI/CD Pipeline - Autonomous Supply Chain Swarm
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Lint, ML Training & Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install --no-deps --no-build-isolation -e .
+          pip install mypy ruff
+
+      - name: Lint & Type Check
+        run: |
+          python -m compileall app.py config.py agents/ database/ evaluation/ llm/ ml/ observability/ rag/ services/ swarm/
+          ruff check agents database evaluation llm ml observability rag services swarm app.py config.py
+          mypy config.py database evaluation llm ml observability rag services swarm agents
+
+      - name: Train & Validate ML Models
+        run: |
+          python ml/train_models.py
+
+      - name: Run Pytest Test Suite
+        run: |
+          pytest tests/ -v --cov=. --cov-report=term-missing --maxfail=2
+
+  docker:
+    name: Docker Build Verification
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: supply-chain-swarm:latest
+

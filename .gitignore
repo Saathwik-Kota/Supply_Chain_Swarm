@@ -1,0 +1,35 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+test_core_changes.py
+
+# Local Databases & Secrets
+*.db
+*.sqlite3
+.env
+
+# Application Logs & Traces
+logs/*.jsonl
+logs/*.log
+*.log
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Audit Notes (optional local file)
+Resume-Readiness Audit Supply.txt

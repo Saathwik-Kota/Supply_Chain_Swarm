@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  # ─── Optional PostgreSQL Database (Start with: docker compose --profile postgres up) ─
+  postgres:
+    image: postgres:16-alpine
+    container_name: emergency_swarm_postgres
+    profiles: ["postgres"]
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-swarm_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-swarm_pass}
+      - POSTGRES_DB=${POSTGRES_DB:-supply_chain_swarm}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-swarm_user} -d ${POSTGRES_DB:-supply_chain_swarm}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─── Streamlit Live Command Center ─────────────────────────────────────────
+  command-center:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: emergency_swarm_ui
+    ports:
+      - "8501:8501"
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///supply_chain_swarm.db}
+      - LLM_PROVIDER=auto
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - sqlite_data:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── FastAPI Supplier & WebSocket Microservice ──────────────────────────────
+  supplier-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: emergency_swarm_api
+    command: ["uvicorn", "services.supplier_api:supplier_app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///supply_chain_swarm.db}
+    env_file:
+      - .env
+    volumes:
+      - sqlite_data:/app
+    depends_on:
+      - command-center
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+  postgres_data:
+
