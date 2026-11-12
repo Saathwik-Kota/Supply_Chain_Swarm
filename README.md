@@ -1,10 +1,10 @@
 # 🚨 Autonomous Emergency Response & Supply Chain Logistics Swarm
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Tests: 49 Passed](https://img.shields.io/badge/pytest-49%20passed%20%7C%2070%25%20cov-brightgreen.svg)](https://pytest.org/)
 [![Type Check: Mypy](https://img.shields.io/badge/mypy-0%20errors-blue.svg)](https://mypy-lang.org/)
-[![Linter: Ruff](https://img.shields.io/badge/linter-ruff-purple.svg)](https://docs.astral.sh/ruff/)
-[![FastAPI: OpenAPI 3.1](https://img.shields.io/badge/FastAPI-OpenAPI%20%2Fdocs-009688.svg)](http://localhost:8000/docs)
+[![Linter: Ruff](https://img.shields.io/badge/linter-ruff%20%7C%200%20issues-purple.svg)](https://docs.astral.sh/ruff/)
+[![FastAPI: v2.0.0 OpenAPI](https://img.shields.io/badge/FastAPI-v2.0.0%20OpenAPI%20%2Fdocs-009688.svg)](http://localhost:8000/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 An enterprise-grade, **autonomous multi-agent AI system** for disaster-relief supply chain resilience across **20 Indian national logistics corridors**. Built with **LLM tool-calling ReAct agents** (Google Gemini, OpenAI, and an offline Autonomous Local ReAct Engine), **SciPy MILP multi-warehouse split fulfillment**, **hybrid TF-IDF/LSA RAG** over NDMA/NDRF operational SOPs, **ML demand forecasting & corridor risk scoring**, **self-correcting Shapely/OSRM detour routing**, **async telemetry ingestion with circuit breakers**, and **real-time FastAPI WebSocket streaming**.
@@ -82,15 +82,15 @@ Measured directly on the built-in 5-scenario evaluation suite (`python -m evalua
 | Metric | Measured Value | Notes |
 |---|---|---|
 | **Benchmark Pass Rate** | **`100.0%` (5 / 5 scenarios)** | Chennai Cyclone, Pune Landslide, Guwahati Flood, Delhi Seismic, Vizag Split Surge |
-| **Median Latency (P50)** | **`1857.98 ms`** (~1.86 s) | End-to-end 4-agent execution across 5 scenarios (`661.69 ms` warm minimum) |
-| **Tail Latency (P95 / P99)** | **`10409.84 ms` / `12069.35 ms`** | Includes uncached cold Open-Meteo + OSRM network bootstrap |
-| **Inventory Fulfillment Rate** | **`100.0%` mean** | Including `BM-05-VIZAG-SPLIT-SURGE` (**1,700 / 1,700 units** across **4 depots** in `2112.26 ms`) |
+| **Median Latency (P50)** | **`964.2 ms`** (~0.96 s) | End-to-end 4-agent execution across 5 scenarios (`673.6 ms` warm minimum) |
+| **Tail Latency (P95 / P99)** | **`9166.47 ms` / `10537.27 ms`** | Reflects uncached cold Open-Meteo + OSRM network bootstrap (`10879.97 ms` on first scenario) |
+| **Inventory Fulfillment Rate** | **`100.0%` mean** | Including `BM-05-VIZAG-SPLIT-SURGE` (**1,700 / 1,700 units** across **4 depots** in `2312.47 ms`) |
 | **Route Optimality Ratio** | **`1.569` mean** (`1.128` on Vizag surge) | Actual OSRM road km vs. direct ellipsoidal geodesic km |
-| **Decision Accuracy Score** | **`100.0%` mean** | Validated tool execution, reserve compliance (`100.0%`), and zero agent errors |
+| **Decision Accuracy Score** | **`100.0%` mean** | Validated tool execution, `100.0%` reserve compliance, and `0` agent errors |
 | **ML Demand Forecaster** | **$R^2 = 0.9348$**, MAE = `468.55` units | 500 test samples (`water_purification` $R^2 = 0.955$, `medical_kits` $R^2 = 0.953$) |
 | **ML Route Risk & Anomaly** | **ROC-AUC = `0.9999`** | 600 test samples across 9 meteorological & distance features |
-| **Automated Test Suite** | **`49 / 49` passed (`70%` coverage)** | Unit + FastAPI + WebSocket + MILP + Alembic + Async resilience (`pytest`) |
-| **Static Analysis** | **`0` mypy errors, `0` ruff issues** | Verified across 38 typed source modules |
+| **Automated Test Suite** | **`49 / 49` passed (`70%` coverage)** | Unit (`38`) + Integration (`11`) tests: FastAPI, WebSocket, MILP, Alembic & async resilience (`pytest`) |
+| **Static Analysis** | **`0` mypy errors, `0` ruff issues** | Verified cleanly with strict `mypy` (38 core modules) and `ruff check` |
 
 ---
 
@@ -121,7 +121,7 @@ Start the FastAPI microservice (`uvicorn services.supplier_api:supplier_app --ho
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.11+ (Tested on 3.11, 3.12, 3.14)
+- Python 3.10+ (`requires-python >= 3.10`; CI verified on 3.11 & 3.12, locally verified on 3.14)
 - Optional: Docker & Docker Compose, PostgreSQL 15+
 
 ### Local Setup
@@ -182,6 +182,7 @@ docker compose ps
 
 ```
 Supply_chain_swarm/
+├── .env.example                    # Environment variable template (API keys, DB URL, cache TTLs)
 ├── .github/workflows/ci.yml        # CI pipeline: compile, ruff, mypy, ML train, pytest, Docker
 ├── .pre-commit-config.yaml         # Hooks: pre-commit-hooks, black, isort, ruff, mypy
 ├── agents/                         # Autonomous ReAct Agents (Telemetry, Inventory, Routing, Dispatch)
@@ -189,7 +190,7 @@ Supply_chain_swarm/
 ├── database/                       # SQLAlchemy ORM models, pooling, ACID CRUD & MILP split solver
 ├── evaluation/                     # Run KPIs (evaluate_swarm_run) & 5-scenario benchmark runner
 ├── llm/                            # Unified Gemini / OpenAI / Local ReAct client, prompts & schemas
-├── ml/                             # Random Forest Demand Forecaster & GBDT/IF Route Risk models
+├── ml/                             # Random Forest Demand Forecaster, GBDT/IF Risk model & .joblib weights
 ├── observability/                  # Structured JSONL trace logger & span latency metrics
 ├── rag/                            # NDMA/NDRF SOP corpus & Hybrid TF-IDF + SVD/LSA retriever
 ├── services/                       # Async Open-Meteo, OSRM+Shapely, USGS/EONET, Breaker/Cache, FastAPI
@@ -198,11 +199,12 @@ Supply_chain_swarm/
 ├── alembic.ini                     # Alembic configuration
 ├── app.py                          # Streamlit Live Command Center Dashboard
 ├── config.py                       # Logistics hubs, DB pooling, cache/breaker & threshold configs
-├── Dockerfile & docker-compose.yml # Multi-service container definitions
+├── docker-compose.yml              # Multi-service container stack (Streamlit UI + FastAPI backend)
+├── Dockerfile                      # Production container build definition
+├── LICENSE                         # MIT License
 ├── Makefile                        # Developer task runner
 ├── pyproject.toml                  # Editable package metadata, pytest, ruff & mypy config
-├── requirements.txt                # Pinned Python dependencies
-└── LICENSE                         # MIT License
+└── requirements.txt                # Pinned Python dependencies
 ```
 
 ---

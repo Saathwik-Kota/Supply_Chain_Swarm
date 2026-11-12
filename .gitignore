@@ -1,35 +1,72 @@
-# Virtual Environment
+# Virtual Environments
 venv/
 .venv/
 env/
+ENV/
+.Python
 
-# Python Cache & Bytecode
+# Python Bytecode, Build & Packaging
 __pycache__/
 *.py[cod]
 *$py.class
 *.pyd
+*.so
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+wheels/
+pip-wheel-metadata/
+.installed.cfg
 
-# Testing & Coverage
+# Testing, Coverage, Lint & Type-Check Caches
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+coverage.xml
+nosetests.xml
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
 test_core_changes.py
 
-# Local Databases & Secrets
+# Local Databases & Journal Files
 *.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
 *.sqlite3
-.env
 
-# Application Logs & Traces
+# Secrets & Environment Variables (keep .env.example tracked)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Application Logs & Temporary Files
 logs/*.jsonl
 logs/*.log
+logs/*.json
 *.log
+*.tmp
+*.bak
+nul
 
-# OS & IDE
+# OS, IDEs & Local Agent/Audit Notes
 .DS_Store
 Thumbs.db
+Desktop.ini
+desktop.ini
 .vscode/
 .idea/
-
-# Audit Notes (optional local file)
+*.swp
+*.swo
+*~
+.gemini/
+.antigravity/
 Resume-Readiness Audit Supply.txt
