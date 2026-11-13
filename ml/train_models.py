@@ -10,6 +10,13 @@ Run directly with:
 """
 
 import logging
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 from ml.demand_forecast import DemandForecaster
 from ml.route_risk_model import RouteRiskModel
