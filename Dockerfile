@@ -11,12 +11,12 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application source code and install editable package
 COPY . .
-RUN pip install --no-cache-dir --no-deps --no-build-isolation -e .
+RUN pip install --no-cache-dir --no-deps -e .
 
 # Pre-train / verify ML models during build stage
 RUN python ml/train_models.py

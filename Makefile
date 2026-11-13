@@ -3,8 +3,9 @@
 PYTHON ?= python
 
 install:
+	$(PYTHON) -m pip install --upgrade pip setuptools wheel
 	$(PYTHON) -m pip install -r requirements.txt
-	$(PYTHON) -m pip install --no-deps --no-build-isolation -e .
+	$(PYTHON) -m pip install --no-deps -e .
 
 install-dev: install
 	$(PYTHON) -m pip install mypy ruff black isort pre-commit pytest pytest-cov

@@ -1,3 +1,5 @@
+setuptools>=68.0
+wheel
 streamlit>=1.40.0
 sqlalchemy>=2.0.0
 alembic>=1.13.0
